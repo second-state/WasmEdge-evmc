@@ -1,3 +1,0 @@
-[submodule "utils/ssvm-core"]
-	path = utils/ssvm-core
-	url = git@github.com:second-state/SSVM.git
