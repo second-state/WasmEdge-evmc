@@ -48,3 +48,7 @@ add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(tools)
 add_subdirectory(utils)
+
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
