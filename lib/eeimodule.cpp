@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-#include "host/ethereum/eeimodule.h"
-#include "host/ethereum/eeifunc.h"
+#include "eeimodule.h"
+#include "eeifunc.h"
 
 #include <memory>
 

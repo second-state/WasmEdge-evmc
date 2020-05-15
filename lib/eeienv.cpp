@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-#include "host/ethereum/eeienv.h"
+#include "eeienv.h"
 
 namespace SSVM {
 namespace Host {

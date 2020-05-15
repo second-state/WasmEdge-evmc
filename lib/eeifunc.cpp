@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-#include "host/ethereum/eeifunc.h"
+#include "eeifunc.h"
 #include "Keccak.h"
 #include "support/hexstr.h"
 
