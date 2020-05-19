@@ -11,7 +11,7 @@ The built library will be placed at `<your/build/folder>/tools/ssvm-evmc/libssvm
 ## Get SSVM-EVMC Source Code
 
 ```bash
-$ git clone git@gitlab.com:secondstate/vm/ssvm-evmc.git
+$ git clone git@github.com:second-state/ssvm-evmc.git
 $ cd ssvm-evmc
 $ git checkout master
 ```
