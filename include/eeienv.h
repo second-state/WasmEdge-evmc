@@ -129,6 +129,9 @@ public:
     Code = Bytes(Buf, Buf + Size);
   }
 
+  /// Getter of is revert.
+  bool &getIsRevert() { return IsRevert; }
+
 private:
   /// Gas measurement
   uint64_t &GasLimit;
@@ -154,6 +157,8 @@ private:
   evmc_call_kind CallKind = evmc_call_kind::EVMC_CALL;
   /// EVMC context:
   struct evmc_context *EVMCContext;
+  /// Is revert:
+  bool IsRevert = false;
 };
 
 } // namespace Host

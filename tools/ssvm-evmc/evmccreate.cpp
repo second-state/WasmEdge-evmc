@@ -94,10 +94,11 @@ static struct evmc_result execute(struct evmc_instance *vm,
 
   /// Execute.
   if (result.status_code == EVMC_SUCCESS) {
-    auto Res = EVM.execute("main");
-    if (!Res && Res.error() == SSVM::ErrCode::Revert) {
-      result.status_code = EVMC_REVERT;
-    } else if (!Res) {
+    if (auto Res = EVM.execute("main")) {
+      if (EEIEnv.getIsRevert()) {
+        result.status_code = EVMC_REVERT;
+      }
+    } else {
       result.status_code = EVMC_FAILURE;
     }
   }

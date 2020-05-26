@@ -480,7 +480,8 @@ Expect<void> EEIRevert::body(Runtime::Instance::MemoryInstance &MemInst,
   } else {
     return Unexpect(Res);
   }
-  return Unexpect(ErrCode::Revert);
+  Env.getIsRevert() = true;
+  return Unexpect(ErrCode::Terminated);
 }
 
 Expect<void> EEISelfDestruct::body(Runtime::Instance::MemoryInstance &MemInst,
