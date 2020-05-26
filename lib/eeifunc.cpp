@@ -217,7 +217,7 @@ EEIExternalCodeCopy::body(Runtime::Instance::MemoryInstance &MemInst,
   size_t Copied =
       Cxt->host->copy_code(Cxt, &Addr, CodeOffset, Buffer.data(), Length);
   if (Length != Copied) {
-    return Unexpect(ErrCode::AccessForbidMemory);
+    return Unexpect(ErrCode::MemoryOutOfBounds);
   }
 
   /// Store to memory instance.
