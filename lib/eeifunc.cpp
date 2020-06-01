@@ -130,7 +130,7 @@ Expect<uint32_t> EEICallStatic::body(Runtime::Instance::MemoryInstance &MemInst,
     /// Prepare call data.
     std::vector<unsigned char> Data;
     if (auto Res = MemInst.getBytes(DataOffset, DataLength)) {
-      Data = std::move(*Res);
+      Data = std::vector<uint8_t>((*Res).begin(), (*Res).end());
     } else {
       return Unexpect(Res);
     }
@@ -228,7 +228,7 @@ Expect<void> EEIFinish::body(Runtime::Instance::MemoryInstance &MemInst,
                              uint32_t DataOffset, uint32_t DataLength) {
   Env.getReturnData().clear();
   if (auto Res = MemInst.getBytes(DataOffset, DataLength)) {
-    Env.getReturnData() = std::move(*Res);
+    Env.getReturnData() = std::vector<uint8_t>((*Res).begin(), (*Res).end());
   } else {
     return Unexpect(Res);
   }
@@ -446,7 +446,7 @@ Expect<void> EEILog::body(Runtime::Instance::MemoryInstance &MemInst,
   /// Load data.
   std::vector<uint8_t> Data;
   if (auto Res = MemInst.getBytes(DataOffset, DataLength)) {
-    Data = std::move(*Res);
+    Data = std::vector<uint8_t>((*Res).begin(), (*Res).end());
   } else {
     return Unexpect(Res);
   }
@@ -476,7 +476,7 @@ Expect<void> EEIRevert::body(Runtime::Instance::MemoryInstance &MemInst,
                              uint32_t DataOffset, uint32_t DataLength) {
   Env.getReturnData().clear();
   if (auto Res = MemInst.getBytes(DataOffset, DataLength)) {
-    Env.getReturnData() = std::move(*Res);
+    Env.getReturnData() = std::vector<uint8_t>((*Res).begin(), (*Res).end());
   } else {
     return Unexpect(Res);
   }

@@ -2,10 +2,10 @@
 #pragma once
 
 #include "common/errcode.h"
-#include "runtime/hostfunc.h"
-#include "runtime/instance/memory.h"
 #include "eeienv.h"
 #include "evmc/evmc.hpp"
+#include "runtime/hostfunc.h"
+#include "runtime/instance/memory.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -130,7 +130,7 @@ protected:
     std::vector<uint8_t> Code;
     if (DataLength > 0) {
       if (auto Res = MemInst.getBytes(DataOffset, DataLength)) {
-        Code = *Res;
+        Code = std::vector<uint8_t>((*Res).begin(), (*Res).end());
       } else {
         return Unexpect(Res);
       }
