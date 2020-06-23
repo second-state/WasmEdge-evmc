@@ -53,7 +53,7 @@ public:
   }
 
   /// Getter of caller vector.
-  Bytes &getCaller() { return Caller; }
+  std::vector<Byte> &getCaller() { return Caller; }
 
   /// Setter of caller by hex string.
   void setCaller(const std::string &Str) {
@@ -75,7 +75,7 @@ public:
   }
 
   /// Getter of call value vector.
-  Bytes &getCallValue() { return CallValue; }
+  std::vector<Byte> &getCallValue() { return CallValue; }
 
   /// Setter of call value by hex string.
   void setCallValue(const std::string &Str) {
@@ -83,7 +83,7 @@ public:
   }
 
   /// Getter of call data vector.
-  Bytes &getCallData() { return CallData; }
+  std::vector<Byte> &getCallData() { return CallData; }
 
   /// Getter of address and converting into hex string.
   std::string getAddressStr() {
@@ -100,7 +100,7 @@ public:
   }
 
   /// Getter of address vector.
-  Bytes &getAddress() { return Address; }
+  std::vector<Byte> &getAddress() { return Address; }
 
   /// Setter of address by hex string.
   void setAddress(const std::string &Str) {
@@ -108,10 +108,10 @@ public:
   }
 
   /// Getter of return data vector.
-  Bytes &getReturnData() { return ReturnData; }
+  std::vector<Byte> &getReturnData() { return ReturnData; }
 
   /// Getter of code vector.
-  Bytes &getCode() { return Code; }
+  std::vector<Byte> &getCode() { return Code; }
 
   /// Setter of EVMC context.
   void setEVMCContext(struct evmc_context *Cxt) { EVMCContext = Cxt; }
@@ -126,7 +126,7 @@ public:
 
   /// Set code by EVMC.
   void setEVMCCode(const uint8_t *Buf, const uint32_t Size) {
-    Code = Bytes(Buf, Buf + Size);
+    Code = std::vector<Byte>(Buf, Buf + Size);
   }
 
   /// Getter of is revert.
@@ -138,17 +138,17 @@ private:
   uint64_t &GasUsed;
 
   /// Caller: 20 bytes sendor address.
-  Bytes Caller;
+  std::vector<Byte> Caller;
   /// CallValue: 32 bytes little endian. Reversed value.
-  Bytes CallValue;
+  std::vector<Byte> CallValue;
   /// CallData: inputs, may be 0-length.
-  Bytes CallData;
+  std::vector<Byte> CallData;
   /// Address: 20 bytes destination address.
-  Bytes Address;
+  std::vector<Byte> Address;
   /// ReturnData: return value list.
-  Bytes ReturnData;
+  std::vector<Byte> ReturnData;
   /// Code:
-  Bytes Code;
+  std::vector<Byte> Code;
   /// Depth:
   uint32_t Depth = 0;
   /// Call flag:

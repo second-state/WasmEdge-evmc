@@ -39,10 +39,10 @@ void EVMEnvironment::setEVMCMessage(const struct evmc_message *Msg) {
   GasLimit = Msg->gas;
 
   /// Set caller.
-  Caller = Bytes(Msg->sender.bytes, Msg->sender.bytes + 20);
+  Caller = std::vector<Byte>(Msg->sender.bytes, Msg->sender.bytes + 20);
 
   /// Set call value. Convert big-endian to little-endian.
-  CallValue = Bytes(Msg->value.bytes, Msg->value.bytes + 32);
+  CallValue = std::vector<Byte>(Msg->value.bytes, Msg->value.bytes + 32);
   std::reverse(CallValue.begin(), CallValue.end());
 
   /// Set call data.
@@ -52,7 +52,8 @@ void EVMEnvironment::setEVMCMessage(const struct evmc_message *Msg) {
   }
 
   /// Set address.
-  Address = Bytes(Msg->destination.bytes, Msg->destination.bytes + 20);
+  Address =
+      std::vector<Byte>(Msg->destination.bytes, Msg->destination.bytes + 20);
   ReturnData.clear();
 }
 

@@ -15,6 +15,7 @@ target_include_directories(ssvmEVMCHostModuleEEI
   PUBLIC
   ${Boost_INCLUDE_DIR}
   ${SSVM_CORE_SRC_DIR}/include
+  ${SSVM_CORE_SRC_DIR}/thirdparty
   ${PROJECT_SOURCE_DIR}/utils/keccak
   ${PROJECT_SOURCE_DIR}/utils/evmc/include
 )
