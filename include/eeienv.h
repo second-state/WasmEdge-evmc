@@ -16,8 +16,9 @@ namespace Host {
 class EVMEnvironment {
 public:
   EVMEnvironment() = delete;
-  EVMEnvironment(uint64_t &CostLimit, uint64_t &CostSum)
-      : GasLimit(CostLimit), GasUsed(CostSum) {}
+  EVMEnvironment(uint64_t &CostLimit, uint64_t &CostSum,
+                 const evmc_host_interface *IHost, evmc_host_context *Cxt)
+      : GasLimit(CostLimit), GasUsed(CostSum), EVMCContext(*IHost, Cxt) {}
   ~EVMEnvironment() = default;
 
   /// Getter of remain gas. Gas limit can be set by EnvironmentManager.
@@ -46,8 +47,8 @@ public:
   }
 
   /// Getter of caller in EVMC version.
-  evmc_address getCallerEVMC() {
-    evmc_address Addr;
+  evmc::address getCallerEVMC() {
+    evmc::address Addr;
     std::copy_n(Caller.cbegin(), 20, Addr.bytes);
     return Addr;
   }
@@ -68,8 +69,8 @@ public:
   }
 
   /// Getter of call value in EVMC version.
-  evmc_bytes32 getCallValueEVMC() {
-    evmc_bytes32 Val;
+  evmc::bytes32 getCallValueEVMC() {
+    evmc::bytes32 Val;
     std::copy_n(CallValue.cbegin(), 32, Val.bytes);
     return Val;
   }
@@ -93,8 +94,8 @@ public:
   }
 
   /// Getter of address in EVMC version.
-  evmc_address getAddressEVMC() {
-    evmc_address Addr;
+  evmc::address getAddressEVMC() {
+    evmc::address Addr;
     std::copy_n(Address.cbegin(), 20, Addr.bytes);
     return Addr;
   }
@@ -113,13 +114,8 @@ public:
   /// Getter of code vector.
   std::vector<Byte> &getCode() { return Code; }
 
-  /// Setter of EVMC context.
-  void setEVMCContext(struct evmc_context *Cxt) { EVMCContext = Cxt; }
-
   /// Getter of EVMC context.
-  struct evmc_context *getEVMCContext() {
-    return EVMCContext;
-  }
+  evmc::HostContext &getEVMCContext() { return EVMCContext; }
 
   /// Initialize by EVMC message.
   void setEVMCMessage(const struct evmc_message *Msg);
@@ -156,7 +152,7 @@ private:
   /// Call kind:
   evmc_call_kind CallKind = evmc_call_kind::EVMC_CALL;
   /// EVMC context:
-  struct evmc_context *EVMCContext;
+  evmc::HostContext EVMCContext;
   /// Is revert:
   bool IsRevert = false;
 };

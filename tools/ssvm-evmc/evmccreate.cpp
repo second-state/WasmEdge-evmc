@@ -14,11 +14,11 @@ static bool isWasmBinary(std::vector<uint8_t> &Code) {
          Code[3] == 'm';
 }
 
-static evmc_capabilities_flagset get_capabilities(struct evmc_instance *vm) {
+static evmc_capabilities_flagset get_capabilities(struct evmc_vm *vm) {
   return EVMC_CAPABILITY_EWASM;
 }
 
-static void destroy(struct evmc_instance *vm) { return; }
+static void destroy(struct evmc_vm *vm) { delete vm; }
 
 static void release(const struct evmc_result *result) {
   if (result->output_data != nullptr) {
@@ -27,11 +27,10 @@ static void release(const struct evmc_result *result) {
   return;
 }
 
-static struct evmc_result execute(struct evmc_instance *vm,
-                                  struct evmc_context *context,
-                                  enum evmc_revision rev,
-                                  const struct evmc_message *msg,
-                                  uint8_t const *code, size_t code_size) {
+static struct evmc_result
+execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
+        struct evmc_host_context *context, enum evmc_revision rev,
+        const struct evmc_message *msg, const uint8_t *code, size_t code_size) {
   SSVM::Log::setErrorLoggingLevel();
   // Prepare EVMC result
   struct evmc_result result;
@@ -46,14 +45,14 @@ static struct evmc_result execute(struct evmc_instance *vm,
   SSVM::VM::Configure Conf;
   SSVM::VM::VM EVM(Conf);
   SSVM::Support::Measurement &Measure = EVM.getMeasurement();
-  SSVM::Host::EEIModule EEIMod(Measure.getCostLimit(), Measure.getCostSum());
+  SSVM::Host::EEIModule EEIMod(Measure.getCostLimit(), Measure.getCostSum(),
+                               host, context);
   Measure.setCostTable(std::vector<uint64_t>());
   EVM.registerModule(EEIMod);
 
   /// Set data from message.
   std::vector<uint8_t> Code(code, code + code_size);
   SSVM::Host::EVMEnvironment &EEIEnv = EEIMod.getEnv();
-  EEIEnv.setEVMCContext(context);
   EEIEnv.setEVMCMessage(msg);
   EEIEnv.setEVMCCode(code, code_size);
   if (msg->input_size > 0) {
@@ -139,13 +138,16 @@ static struct evmc_result execute(struct evmc_instance *vm,
 
 } // namespace
 
-extern "C" EVMC_EXPORT struct evmc_instance *evmc_create() EVMC_NOEXCEPT {
-  static evmc_instance vm = {
-      EVMC_ABI_VERSION,   "ssvm",  "0.4.0",
+extern "C" EVMC_EXPORT struct evmc_vm *evmc_create() EVMC_NOEXCEPT {
+  struct evmc_vm *VM = new struct evmc_vm({
+      EVMC_ABI_VERSION,
+      "ssvm",
+      "0.6.2",
       ::destroy, // destroy
       ::execute, // execute
-      ::get_capabilities, nullptr,
-  };
+      ::get_capabilities,
+      nullptr,
+  });
 
-  return &vm;
+  return VM;
 }

@@ -34,13 +34,13 @@ protected:
     return Env.getGasLeft() - (Env.getGasLeft() / 64);
   }
 
-  /// Helper function to load value and store to evmc_uint256be.
-  Expect<evmc_uint256be> loadUInt(Runtime::Instance::MemoryInstance &MemInst,
-                                  uint32_t Off, uint32_t Bytes = 32) {
+  /// Helper function to load value and store to evmc::uint256be.
+  Expect<evmc::uint256be> loadUInt(Runtime::Instance::MemoryInstance &MemInst,
+                                   uint32_t Off, uint32_t Bytes = 32) {
     if (Bytes > 32) {
       Bytes = 32;
     }
-    evmc_uint256be Dst = {};
+    evmc::uint256be Dst = {};
     if (auto Res =
             MemInst.getArray(Dst.bytes + (32 - Bytes), Off, Bytes, true)) {
       return Dst;
@@ -49,10 +49,10 @@ protected:
     }
   }
 
-  /// Helper function to load evmc_address from memory instance.
-  Expect<evmc_address> loadAddress(Runtime::Instance::MemoryInstance &MemInst,
-                                   uint32_t Off) {
-    evmc_address Dst = {};
+  /// Helper function to load evmc::address from memory instance.
+  Expect<evmc::address> loadAddress(Runtime::Instance::MemoryInstance &MemInst,
+                                    uint32_t Off) {
+    evmc::address Dst = {};
     if (auto Res = MemInst.getArray(Dst.bytes, Off, 20)) {
       return Dst;
     } else {
@@ -60,10 +60,10 @@ protected:
     }
   }
 
-  /// Helper function to load evmc_bytes32 from memory instance.
-  Expect<evmc_bytes32> loadBytes32(Runtime::Instance::MemoryInstance &MemInst,
-                                   uint32_t Off) {
-    evmc_bytes32 Dst = {};
+  /// Helper function to load evmc::bytes32 from memory instance.
+  Expect<evmc::bytes32> loadBytes32(Runtime::Instance::MemoryInstance &MemInst,
+                                    uint32_t Off) {
+    evmc::bytes32 Dst = {};
     if (auto Res = MemInst.getArray(Dst.bytes, Off, 32)) {
       return Dst;
     } else {
@@ -71,9 +71,9 @@ protected:
     }
   }
 
-  /// Helper function to reverse and store evmc_uint256be to memory instance.
+  /// Helper function to reverse and store evmc::uint256be to memory instance.
   Expect<void> storeUInt(Runtime::Instance::MemoryInstance &MemInst,
-                         const evmc_uint256be &Src, uint32_t Off,
+                         const evmc::uint256be &Src, uint32_t Off,
                          uint32_t Bytes = 32) {
     if (Bytes > 32) {
       Bytes = 32;
@@ -86,21 +86,21 @@ protected:
     return MemInst.setArray(Src.bytes + (32 - Bytes), Off, Bytes, true);
   }
 
-  /// Helper function to store evmc_address to memory instance.
+  /// Helper function to store evmc::address to memory instance.
   Expect<void> storeAddress(Runtime::Instance::MemoryInstance &MemInst,
-                            const evmc_address &Addr, uint32_t Off) {
+                            const evmc::address &Addr, uint32_t Off) {
     return MemInst.setArray(Addr.bytes, Off, 20);
   }
 
-  /// Helper function to store evmc_bytes32 to memory instance.
+  /// Helper function to store evmc::bytes32 to memory instance.
   Expect<void> storeBytes32(Runtime::Instance::MemoryInstance &MemInst,
-                            const evmc_bytes32 &Bytes, uint32_t Off) {
+                            const evmc::bytes32 &Bytes, uint32_t Off) {
     return MemInst.setArray(Bytes.bytes, Off, 32);
   }
 
-  /// Helper function to convert evmc_bytes32 to uint128_t.
+  /// Helper function to convert evmc::bytes32 to uint128_t.
   Expect<boost::multiprecision::uint128_t>
-  convToUInt128(const evmc_uint256be &Src) {
+  convToUInt128(const evmc::uint256be &Src) {
     boost::multiprecision::uint128_t Dst = 0;
     for (uint32_t I = 0; I < 16; ++I) {
       if (Src.bytes[I]) {
@@ -119,7 +119,7 @@ protected:
                                 evmc_message &Msg, uint32_t DataOffset,
                                 uint32_t DataLength,
                                 uint32_t CreateResOffset = 0) {
-    evmc_context *Cxt = Env.getEVMCContext();
+    evmc::HostContext &Cxt = Env.getEVMCContext();
 
     /// Check depth.
     if (Env.getDepth() >= 1024) {
@@ -156,7 +156,7 @@ protected:
       }
 
       /// Take gas if create new account.
-      if (!Cxt->host->account_exists(Cxt, &(Msg.destination))) {
+      if (!Cxt.account_exists(Msg.destination)) {
         if (!Env.consumeGas(25000ULL)) {
           return Unexpect(ErrCode::CostLimitExceeded);
         }
@@ -169,8 +169,7 @@ protected:
          !evmc::is_zero(Msg.value)) ||
         Msg.kind == evmc_call_kind::EVMC_CREATE) {
       boost::multiprecision::uint128_t DstBalance = 0, ValBalance = 0;
-      if (auto Res =
-              convToUInt128(Cxt->host->get_balance(Cxt, &(Msg.sender)))) {
+      if (auto Res = convToUInt128(Cxt.get_balance(Msg.sender))) {
         DstBalance = *Res;
       } else {
         return Unexpect(ErrCode::ExecutionFailed);
@@ -194,7 +193,7 @@ protected:
     }
 
     /// Call.
-    evmc_result CallRes = Cxt->host->call(Cxt, &Msg);
+    evmc::result CallRes = Cxt.call(Msg);
 
     /// Return left gas.
     if (CallRes.gas_left < 0) {

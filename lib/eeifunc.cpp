@@ -24,7 +24,7 @@ Expect<uint32_t> EEICall::body(Runtime::Instance::MemoryInstance *MemInst,
   } else {
     return Unexpect(Res);
   }
-  evmc_uint256be Val;
+  evmc::uint256be Val;
   if (auto Res = loadUInt(*MemInst, ValueOffset, 16)) {
     Val = std::move(*Res);
   } else {
@@ -60,7 +60,7 @@ Expect<uint32_t> EEICallCode::body(Runtime::Instance::MemoryInstance *MemInst,
   } else {
     return Unexpect(Res);
   }
-  evmc_uint256be Val;
+  evmc::uint256be Val;
   if (auto Res = loadUInt(*MemInst, ValueOffset, 16)) {
     Val = std::move(*Res);
   } else {
@@ -209,7 +209,7 @@ Expect<uint32_t> EEICreate::body(Runtime::Instance::MemoryInstance *MemInst,
   }
 
   /// Prepare creation message.
-  evmc_uint256be Val;
+  evmc::uint256be Val;
   if (auto Res = loadUInt(*MemInst, ValueOffset, 16)) {
     Val = std::move(*Res);
   } else {
@@ -243,7 +243,7 @@ EEIExternalCodeCopy::body(Runtime::Instance::MemoryInstance *MemInst,
   if (auto Res = addCopyCost(Length); !Res) {
     return Unexpect(Res);
   }
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get address from memory instance.
   evmc_address Addr;
@@ -255,8 +255,7 @@ EEIExternalCodeCopy::body(Runtime::Instance::MemoryInstance *MemInst,
 
   /// Copy code to vector.
   std::vector<uint8_t> Buffer(Length, 0);
-  size_t Copied =
-      Cxt->host->copy_code(Cxt, &Addr, CodeOffset, Buffer.data(), Length);
+  size_t Copied = Cxt.copy_code(Addr, CodeOffset, Buffer.data(), Length);
   if (Length != Copied) {
     return Unexpect(ErrCode::MemoryOutOfBounds);
   }
@@ -299,10 +298,10 @@ EEIGetBlockCoinbase::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get block coinbase and store bytes20.
-  return storeAddress(*MemInst, Cxt->host->get_tx_context(Cxt).block_coinbase,
+  return storeAddress(*MemInst, Cxt.get_tx_context().block_coinbase,
                       ResultOffset);
 }
 
@@ -314,19 +313,19 @@ EEIGetBlockDifficulty::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get block difficulty and store uint256 little-endian value.
-  return storeUInt(*MemInst, Cxt->host->get_tx_context(Cxt).block_difficulty,
+  return storeUInt(*MemInst, Cxt.get_tx_context().block_difficulty,
                    ResultOffset);
 }
 
 Expect<uint64_t>
 EEIGetBlockGasLimit::body(Runtime::Instance::MemoryInstance *MemInst) {
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Return: GasLimit(u64)
-  return Cxt->host->get_tx_context(Cxt).block_gas_limit;
+  return Cxt.get_tx_context().block_gas_limit;
 }
 
 Expect<uint32_t>
@@ -337,10 +336,10 @@ EEIGetBlockHash::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get the block hash value.
-  const evmc_bytes32 Hash = Cxt->host->get_block_hash(Cxt, Number);
+  const evmc::bytes32 Hash = Cxt.get_block_hash(Number);
 
   /// Check is zero.
   if (evmc::is_zero(Hash)) {
@@ -358,18 +357,18 @@ EEIGetBlockHash::body(Runtime::Instance::MemoryInstance *MemInst,
 
 Expect<uint64_t>
 EEIGetBlockNumber::body(Runtime::Instance::MemoryInstance *MemInst) {
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Return: BlockNumber(u64)
-  return Cxt->host->get_tx_context(Cxt).block_number;
+  return Cxt.get_tx_context().block_number;
 }
 
 Expect<uint64_t>
 EEIGetBlockTimestamp::body(Runtime::Instance::MemoryInstance *MemInst) {
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Return: BlockNumber(u64)
-  return Cxt->host->get_tx_context(Cxt).block_timestamp;
+  return Cxt.get_tx_context().block_timestamp;
 }
 
 Expect<uint32_t>
@@ -412,7 +411,7 @@ EEIGetExternalBalance::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get address from memory instance.
   evmc_address Addr;
@@ -423,7 +422,7 @@ EEIGetExternalBalance::body(Runtime::Instance::MemoryInstance *MemInst,
   }
 
   /// Get balance uint256 big-endian value.
-  evmc_uint256be Balance = Cxt->host->get_balance(Cxt, &Addr);
+  evmc::uint256be Balance = Cxt.get_balance(Addr);
 
   /// Store uint128 little-endian value.
   return storeUInt(*MemInst, Balance, ResultOffset, 16);
@@ -437,7 +436,7 @@ EEIGetExternalCodeSize::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get address from memory instance.
   evmc_address Addr;
@@ -448,7 +447,7 @@ EEIGetExternalCodeSize::body(Runtime::Instance::MemoryInstance *MemInst,
   }
 
   /// Return: ExtCodeSize(u32)
-  return Cxt->host->get_code_size(Cxt, &Addr);
+  return Cxt.get_code_size(Addr);
 }
 
 Expect<uint64_t>
@@ -469,10 +468,10 @@ Expect<void> EEIGetTxGasPrice::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get tx gas price uint256 big-endian value.
-  evmc_uint256be Price = Cxt->host->get_tx_context(Cxt).tx_gas_price;
+  evmc::uint256be Price = Cxt.get_tx_context().tx_gas_price;
 
   /// Store uint128 little-endian value.
   return storeUInt(*MemInst, Price, ResultOffset, 16);
@@ -485,11 +484,10 @@ Expect<void> EEIGetTxOrigin::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get block coinbase and store bytes20.
-  return storeAddress(*MemInst, Cxt->host->get_tx_context(Cxt).tx_origin,
-                      ResultOffset);
+  return storeAddress(*MemInst, Cxt.get_tx_context().tx_origin, ResultOffset);
 }
 
 Expect<void> EEILog::body(Runtime::Instance::MemoryInstance *MemInst,
@@ -511,10 +509,10 @@ Expect<void> EEILog::body(Runtime::Instance::MemoryInstance *MemInst,
   if (!Env.consumeGas(TakeGas)) {
     return Unexpect(ErrCode::CostLimitExceeded);
   }
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Copy topics to array.
-  std::vector<evmc_bytes32> Topics(4, evmc_bytes32());
+  std::vector<evmc::bytes32> Topics(4, evmc::bytes32());
   if (NumberOfTopics >= 1) {
     if (auto Res = loadBytes32(*MemInst, Topic1)) {
       Topics[0] = std::move(*Res);
@@ -556,8 +554,7 @@ Expect<void> EEILog::body(Runtime::Instance::MemoryInstance *MemInst,
   evmc_address Addr = Env.getAddressEVMC();
 
   /// Call emit_log.
-  Cxt->host->emit_log(Cxt, &Addr, &Data[0], DataLength, &Topics[0],
-                      NumberOfTopics);
+  Cxt.emit_log(Addr, &Data[0], DataLength, &Topics[0], NumberOfTopics);
 
   return {};
 }
@@ -602,7 +599,7 @@ Expect<void> EEISelfDestruct::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get address data.
   evmc_address Addr;
@@ -614,14 +611,14 @@ Expect<void> EEISelfDestruct::body(Runtime::Instance::MemoryInstance *MemInst,
   evmc_address Self = Env.getAddressEVMC();
 
   /// Take additional gas if call new account.
-  if (!Cxt->host->account_exists(Cxt, &Addr)) {
+  if (!Cxt.account_exists(Addr)) {
     if (!Env.consumeGas(25000ULL)) {
       return Unexpect(ErrCode::CostLimitExceeded);
     }
   }
 
   /// Call selfdestruct.
-  Cxt->host->selfdestruct(Cxt, &Self, &Addr);
+  Cxt.selfdestruct(Self, Addr);
   return Unexpect(ErrCode::Terminated);
 }
 
@@ -632,11 +629,11 @@ Expect<void> EEIStorageLoad::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Get destination, path, and value data.
   evmc_address Addr = Env.getAddressEVMC();
-  evmc_bytes32 Path;
+  evmc::bytes32 Path;
   if (auto Res = loadBytes32(*MemInst, PathOffset)) {
     Path = std::move(*Res);
   } else {
@@ -644,8 +641,7 @@ Expect<void> EEIStorageLoad::body(Runtime::Instance::MemoryInstance *MemInst,
   }
 
   /// Store bytes32 into memory instance.
-  return storeBytes32(*MemInst, Cxt->host->get_storage(Cxt, &Addr, &Path),
-                      ValueOffset);
+  return storeBytes32(*MemInst, Cxt.get_storage(Addr, Path), ValueOffset);
 }
 
 Expect<void> EEIStorageStore::body(Runtime::Instance::MemoryInstance *MemInst,
@@ -655,7 +651,7 @@ Expect<void> EEIStorageStore::body(Runtime::Instance::MemoryInstance *MemInst,
     return Unexpect(ErrCode::ExecutionFailed);
   }
 
-  evmc_context *Cxt = Env.getEVMCContext();
+  evmc::HostContext &Cxt = Env.getEVMCContext();
 
   /// Static mode cannot store storage
   if (Env.getFlag() & evmc_flags::EVMC_STATIC) {
@@ -664,7 +660,7 @@ Expect<void> EEIStorageStore::body(Runtime::Instance::MemoryInstance *MemInst,
 
   /// Get destination, path, value data, and current storage value.
   evmc_address Addr = Env.getAddressEVMC();
-  evmc_bytes32 Path, Value;
+  evmc::bytes32 Path, Value;
   if (auto Res = loadBytes32(*MemInst, PathOffset)) {
     Path = std::move(*Res);
   } else {
@@ -675,7 +671,7 @@ Expect<void> EEIStorageStore::body(Runtime::Instance::MemoryInstance *MemInst,
   } else {
     return Unexpect(Res);
   }
-  evmc_bytes32 CurrValue = Cxt->host->get_storage(Cxt, &Addr, &Path);
+  evmc::bytes32 CurrValue = Cxt.get_storage(Addr, Path);
 
   /// Take additional gas if create case.
   if (evmc::is_zero(CurrValue) && !evmc::is_zero(Value)) {
@@ -685,7 +681,7 @@ Expect<void> EEIStorageStore::body(Runtime::Instance::MemoryInstance *MemInst,
   }
 
   /// Store value into storage.
-  Cxt->host->set_storage(Cxt, &Addr, &Path, &Value);
+  Cxt.set_storage(Addr, Path, Value);
   return {};
 }
 
