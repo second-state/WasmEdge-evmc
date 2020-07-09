@@ -76,8 +76,8 @@ static const char* istanbul_names[256] = {
     /* 0x43 */ "NUMBER",
     /* 0x44 */ "DIFFICULTY",
     /* 0x45 */ "GASLIMIT",
-    /* 0x46 */ NULL,
-    /* 0x47 */ NULL,
+    /* 0x46 */ "CHAINID",
+    /* 0x47 */ "SELFBALANCE",
     /* 0x48 */ NULL,
     /* 0x49 */ NULL,
     /* 0x4a */ NULL,
@@ -1305,6 +1305,7 @@ const char* const* evmc_get_instruction_names_table(enum evmc_revision revision)
     switch (revision)
     {
     case EVMC_ISTANBUL:
+    case EVMC_BERLIN:
         return istanbul_names;
     case EVMC_PETERSBURG:
     case EVMC_CONSTANTINOPLE:
