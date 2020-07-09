@@ -10,119 +10,174 @@
 
 #include <evmc/evmc.hpp>
 
-#include <iostream>
+#include <algorithm>
 #include <map>
+#include <vector>
 
 using namespace evmc::literals;
 
-struct account {
-  evmc::uint256be balance = {};
-  size_t code_size = 0;
-  evmc::bytes32 code_hash = {};
-  std::map<evmc::bytes32, evmc::bytes32> storage;
+namespace evmc
+{
+struct account
+{
+    evmc::uint256be balance = {};
+    std::vector<uint8_t> code;
+    std::map<evmc::bytes32, evmc::bytes32> storage;
+
+    virtual evmc::bytes32 code_hash() const
+    {
+        // Extremely dumb "hash" function.
+        evmc::bytes32 ret{};
+        for (std::vector<uint8_t>::size_type i = 0; i != code.size(); i++)
+        {
+            auto v = code[i];
+            ret.bytes[v % sizeof(ret.bytes)] ^= v;
+        }
+        return ret;
+    }
 };
 
-class ExampleHost : public evmc::Host {
-  std::map<evmc::address, account> accounts;
-  evmc_tx_context tx_context{};
+using accounts = std::map<evmc::address, account>;
+
+}  // namespace evmc
+
+class ExampleHost : public evmc::Host
+{
+    evmc::accounts accounts;
+    evmc_tx_context tx_context{};
 
 public:
-  ExampleHost() = default;
-  explicit ExampleHost(evmc_tx_context &_tx_context) noexcept
-      : tx_context{_tx_context} {};
+    ExampleHost() = default;
+    explicit ExampleHost(evmc_tx_context& _tx_context) noexcept : tx_context{_tx_context} {};
+    ExampleHost(evmc_tx_context& _tx_context, evmc::accounts& _accounts) noexcept
+      : accounts{_accounts}, tx_context{_tx_context} {};
 
-  bool account_exists(const evmc::address &addr) noexcept final {
-    return accounts.find(addr) != accounts.end();
-  }
+    bool account_exists(const evmc::address& addr) const noexcept final
+    {
+        return accounts.find(addr) != accounts.end();
+    }
 
-  evmc::bytes32 get_storage(const evmc::address &addr,
-                            const evmc::bytes32 &key) noexcept final {
-    auto it = accounts.find(addr);
-    if (it != accounts.end())
-      return it->second.storage[key];
-    return {};
-  }
+    evmc::bytes32 get_storage(const evmc::address& addr, const evmc::bytes32& key) const
+        noexcept final
+    {
+        const auto account_iter = accounts.find(addr);
+        if (account_iter == accounts.end())
+            return {};
 
-  evmc_storage_status set_storage(const evmc::address &addr,
-                                  const evmc::bytes32 &key,
-                                  const evmc::bytes32 &value) noexcept final {
-    auto &account = accounts[addr];
-    auto prev_value = account.storage[key];
-    account.storage[key] = value;
+        const auto storage_iter = account_iter->second.storage.find(key);
+        if (storage_iter != account_iter->second.storage.end())
+            return storage_iter->second;
+        return {};
+    }
 
-    return (prev_value == value) ? EVMC_STORAGE_UNCHANGED
-                                 : EVMC_STORAGE_MODIFIED;
-  }
+    evmc_storage_status set_storage(const evmc::address& addr,
+                                    const evmc::bytes32& key,
+                                    const evmc::bytes32& value) noexcept final
+    {
+        auto& account = accounts[addr];
+        auto prev_value = account.storage[key];
+        account.storage[key] = value;
 
-  evmc::uint256be get_balance(const evmc::address &addr) noexcept final {
-    auto it = accounts.find(addr);
-    if (it != accounts.end())
-      return it->second.balance;
-    return {};
-  }
+        return (prev_value == value) ? EVMC_STORAGE_UNCHANGED : EVMC_STORAGE_MODIFIED;
+    }
 
-  size_t get_code_size(const evmc::address &addr) noexcept final {
-    auto it = accounts.find(addr);
-    if (it != accounts.end())
-      return it->second.code_size;
-    return 0;
-  }
+    evmc::uint256be get_balance(const evmc::address& addr) const noexcept final
+    {
+        auto it = accounts.find(addr);
+        if (it != accounts.end())
+            return it->second.balance;
+        return {};
+    }
 
-  evmc::bytes32 get_code_hash(const evmc::address &addr) noexcept final {
-    auto it = accounts.find(addr);
-    if (it != accounts.end())
-      return it->second.code_hash;
-    return {};
-  }
+    size_t get_code_size(const evmc::address& addr) const noexcept final
+    {
+        auto it = accounts.find(addr);
+        if (it != accounts.end())
+            return it->second.code.size();
+        return 0;
+    }
 
-  size_t copy_code(const evmc::address &addr, size_t code_offset,
-                   uint8_t *buffer_data, size_t buffer_size) noexcept final {
-    (void)addr;
-    (void)code_offset;
-    (void)buffer_data;
-    (void)buffer_size;
-    return 0;
-  }
+    evmc::bytes32 get_code_hash(const evmc::address& addr) const noexcept final
+    {
+        auto it = accounts.find(addr);
+        if (it != accounts.end())
+            return it->second.code_hash();
+        return {};
+    }
 
-  void selfdestruct(const evmc::address &addr,
-                    const evmc::address &beneficiary) noexcept final {
-    (void)addr;
-    (void)beneficiary;
-  }
+    size_t copy_code(const evmc::address& addr,
+                     size_t code_offset,
+                     uint8_t* buffer_data,
+                     size_t buffer_size) const noexcept final
+    {
+        const auto it = accounts.find(addr);
+        if (it == accounts.end())
+            return 0;
 
-  evmc::result call(const evmc_message &msg) noexcept final {
-    return {EVMC_REVERT, msg.gas, msg.input_data, msg.input_size};
-  }
+        const auto& code = it->second.code;
 
-  evmc_tx_context get_tx_context() noexcept final { return tx_context; }
+        if (code_offset >= code.size())
+            return 0;
 
-  evmc::bytes32 get_block_hash(int64_t number) noexcept final {
-    const int64_t current_block_number = get_tx_context().block_number;
+        const auto n = std::min(buffer_size, code.size() - code_offset);
 
-    return (number < current_block_number &&
-            number >= current_block_number - 256)
-               ? 0xb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5f_bytes32
-               : 0_bytes32;
-  }
+        if (n > 0)
+            std::copy_n(&code[code_offset], n, buffer_data);
+        return n;
+    }
 
-  void emit_log(const evmc::address &addr, const uint8_t *data,
-                size_t data_size, const evmc::bytes32 topics[],
-                size_t topics_count) noexcept final {
-    (void)addr;
-    (void)data;
-    (void)data_size;
-    (void)topics;
-    (void)topics_count;
-  }
+    void selfdestruct(const evmc::address& addr, const evmc::address& beneficiary) noexcept final
+    {
+        (void)addr;
+        (void)beneficiary;
+    }
+
+    evmc::result call(const evmc_message& msg) noexcept final
+    {
+        return {EVMC_REVERT, msg.gas, msg.input_data, msg.input_size};
+    }
+
+    evmc_tx_context get_tx_context() const noexcept final { return tx_context; }
+
+    evmc::bytes32 get_block_hash(int64_t number) const noexcept final
+    {
+        const int64_t current_block_number = get_tx_context().block_number;
+
+        return (number < current_block_number && number >= current_block_number - 256) ?
+                   0xb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5fb10c8a5f_bytes32 :
+                   0_bytes32;
+    }
+
+    void emit_log(const evmc::address& addr,
+                  const uint8_t* data,
+                  size_t data_size,
+                  const evmc::bytes32 topics[],
+                  size_t topics_count) noexcept final
+    {
+        (void)addr;
+        (void)data;
+        (void)data_size;
+        (void)topics;
+        (void)topics_count;
+    }
 };
+
 
 extern "C" {
 
-evmc_context *example_host_create_context(evmc_tx_context tx_context) {
-  return new ExampleHost(tx_context);
+const evmc_host_interface* example_host_get_interface()
+{
+    return &evmc::Host::get_interface();
 }
 
-void example_host_destroy_context(evmc_context *context) {
-  delete static_cast<ExampleHost *>(context);
+evmc_host_context* example_host_create_context(evmc_tx_context tx_context)
+{
+    auto host = new ExampleHost{tx_context};
+    return host->to_context();
+}
+
+void example_host_destroy_context(evmc_host_context* context)
+{
+    delete evmc::Host::from_context<ExampleHost>(context);
 }
 }
