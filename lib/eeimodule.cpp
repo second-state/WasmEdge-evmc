@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "eeimodule.h"
 #include "eeifunc.h"
+#include "evmc/evmc.hpp"
 
 #include <memory>
 
 namespace SSVM {
 namespace Host {
 
-EEIModule::EEIModule(uint64_t &CostLimit, uint64_t &CostSum)
-    : ImportObject("ethereum"), Env(CostLimit, CostSum) {
+EEIModule::EEIModule(uint64_t &CostLimit, uint64_t &CostSum,
+                     const evmc_host_interface *IHost, evmc_host_context *Cxt)
+    : ImportObject("ethereum"), Env(CostLimit, CostSum, IHost, Cxt) {
   addHostFunc("call", std::make_unique<EEICall>(Env));
   addHostFunc("callCode", std::make_unique<EEICallCode>(Env));
   addHostFunc("callDataCopy", std::make_unique<EEICallDataCopy>(Env));
