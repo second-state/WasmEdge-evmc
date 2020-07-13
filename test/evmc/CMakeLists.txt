@@ -7,6 +7,7 @@ add_executable(ssvmEVMCTest
 
 target_link_libraries(ssvmEVMCTest
   PRIVATE
+  ssvmSupport
   ssvmEVMCUtilEVMCLoader
   utilGoogleTest
   ${CMAKE_DL_LIBS}
