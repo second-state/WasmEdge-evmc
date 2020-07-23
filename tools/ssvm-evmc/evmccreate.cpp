@@ -141,7 +141,7 @@ static struct evmc_result execute(struct evmc_instance *vm,
 
 extern "C" EVMC_EXPORT struct evmc_instance *evmc_create() EVMC_NOEXCEPT {
   static evmc_instance vm = {
-      EVMC_ABI_VERSION,   "ssvm",  "0.4.0",
+      EVMC_ABI_VERSION,   "ssvm",  "0.6.3",
       ::destroy, // destroy
       ::execute, // execute
       ::get_capabilities, nullptr,
