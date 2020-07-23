@@ -142,7 +142,7 @@ extern "C" EVMC_EXPORT struct evmc_vm *evmc_create() EVMC_NOEXCEPT {
   struct evmc_vm *VM = new struct evmc_vm({
       EVMC_ABI_VERSION,
       "ssvm",
-      "0.6.2",
+      "0.6.3",
       ::destroy, // destroy
       ::execute, // execute
       ::get_capabilities,
