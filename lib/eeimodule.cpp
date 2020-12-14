@@ -18,6 +18,7 @@ EEIModule::EEIModule(uint64_t &CostLimit, uint64_t &CostSum,
   addHostFunc("callStatic", std::make_unique<EEICallStatic>(Env));
   addHostFunc("codeCopy", std::make_unique<EEICodeCopy>(Env));
   addHostFunc("create", std::make_unique<EEICreate>(Env));
+  addHostFunc("create2", std::make_unique<EEICreate2>(Env));
   addHostFunc("externalCodeCopy", std::make_unique<EEIExternalCodeCopy>(Env));
   addHostFunc("finish", std::make_unique<EEIFinish>(Env));
   addHostFunc("getAddress", std::make_unique<EEIGetAddress>(Env));
@@ -28,6 +29,7 @@ EEIModule::EEIModule(uint64_t &CostLimit, uint64_t &CostSum,
   addHostFunc("getBlockHash", std::make_unique<EEIGetBlockHash>(Env));
   addHostFunc("getBlockNumber", std::make_unique<EEIGetBlockNumber>(Env));
   addHostFunc("getBlockTimestamp", std::make_unique<EEIGetBlockTimestamp>(Env));
+  addHostFunc("getChainId", std::make_unique<EEIGetChainId>(Env));
   addHostFunc("getCallDataSize", std::make_unique<EEIGetCallDataSize>(Env));
   addHostFunc("getCallValue", std::make_unique<EEIGetCallValue>(Env));
   addHostFunc("getCaller", std::make_unique<EEIGetCaller>(Env));

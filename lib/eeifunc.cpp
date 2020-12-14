@@ -230,6 +230,46 @@ Expect<uint32_t> EEICreate::body(Runtime::Instance::MemoryInstance *MemInst,
                       ResultOffset);
 }
 
+Expect<uint32_t> EEICreate2::body(Runtime::Instance::MemoryInstance *MemInst,
+                                 uint32_t ValueOffset, uint32_t DataOffset,
+                                 uint32_t DataLength, uint32_t SaltOffset, 
+                                 uint32_t ResultOffset) {
+  /// Check memory instance from module.
+  if (MemInst == nullptr) {
+    return Unexpect(ErrCode::ExecutionFailed);
+  }
+
+  /// Prepare creation message.
+  evmc::uint256be Val;
+  if (auto Res = loadUInt(*MemInst, ValueOffset, 16)) {
+    Val = std::move(*Res);
+  } else {
+    return Unexpect(Res);
+  }
+
+  evmc::uint256be Salt;
+  if (auto Res = loadUInt(*MemInst, SaltOffset, 32)) {
+    Salt = std::move(*Res);
+  } else {
+    return Unexpect(Res);
+  }
+
+  evmc_message CreateMsg = {.kind = evmc_call_kind::EVMC_CREATE2,
+                            .flags = 0,
+                            .depth = static_cast<int32_t>(Env.getDepth() + 1),
+                            .gas = static_cast<int64_t>(getMaxCallGas()),
+                            .destination = {},
+                            .sender = Env.getAddressEVMC(),
+                            .input_data = nullptr,
+                            .input_size = 0,
+                            .value = Val,
+                            .create2_salt = Salt};
+
+  /// Return: Result(i32)
+  return callContract(*MemInst, CreateMsg, DataOffset, DataLength,
+                      ResultOffset);
+}
+
 Expect<void>
 EEIExternalCodeCopy::body(Runtime::Instance::MemoryInstance *MemInst,
                           uint32_t AddressOffset, uint32_t ResultOffset,
@@ -369,6 +409,21 @@ EEIGetBlockTimestamp::body(Runtime::Instance::MemoryInstance *MemInst) {
 
   /// Return: BlockNumber(u64)
   return Cxt.get_tx_context().block_timestamp;
+}
+
+
+Expect<void>
+EEIGetChainId::body(Runtime::Instance::MemoryInstance *MemInst, uint32_t ResultOffset) {
+  if (MemInst == nullptr) {
+    return Unexpect(ErrCode::ExecutionFailed);
+  }
+
+  evmc::HostContext &Cxt = Env.getEVMCContext();
+
+  evmc::uint256be ChainId = Cxt.get_tx_context().chain_id;
+
+  /// Store uint128 little-endian value.
+  return storeUInt(*MemInst, ChainId, ResultOffset, 16);
 }
 
 Expect<uint32_t>

@@ -71,6 +71,16 @@ public:
                         uint32_t DataLength, uint32_t ResultOffset);
 };
 
+class EEICreate2 : public EEI<EEICreate2> {
+public:
+  EEICreate2(EVMEnvironment &HostEnv) : EEI(HostEnv, 32000) {}
+
+  Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst,
+                        uint32_t ValueOffset, uint32_t DataOffset,
+                        uint32_t DataLength, uint32_t SaltOffset, 
+                        uint32_t ResultOffset);
+};
+
 class EEIExternalCodeCopy : public EEI<EEIExternalCodeCopy> {
 public:
   EEIExternalCodeCopy(EVMEnvironment &HostEnv) : EEI(HostEnv, 700) {}
@@ -139,6 +149,13 @@ public:
   EEIGetBlockTimestamp(EVMEnvironment &HostEnv) : EEI(HostEnv, 2) {}
 
   Expect<uint64_t> body(Runtime::Instance::MemoryInstance *MemInst);
+};
+
+class EEIGetChainId : public EEI<EEIGetChainId> {
+public:
+  EEIGetChainId(EVMEnvironment &HostEnv) : EEI(HostEnv, 2) {}
+
+  Expect<void> body(Runtime::Instance::MemoryInstance *MemInst, uint32_t ResultOffset);
 };
 
 class EEIGetCallDataSize : public EEI<EEIGetCallDataSize> {
