@@ -93,6 +93,7 @@ void evmc_get_storage(const bytes addr, const bytes key, bytes ret) {
   evmc::address address = bytes_to_address(addr);
   evmc::bytes32 _ret;
   _ret = host_interface->get_storage(context, &address, (evmc::bytes32 *)key);
+  for(int i = 0;i < 32; i++) ret[i] = _ret.bytes[i];
 }
 
 }
