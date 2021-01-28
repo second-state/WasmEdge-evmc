@@ -9,6 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED)
+option(SSVM_EVMC_DISABLE_TOOLS "Disable SSVM-EVMC tools." OFF)
 option(SSVM_DISABLE_HOST_FUNCTIONS "Disable all SSVM host functions. " ON)
 option(SSVM_DISABLE_AOT_RUNTIME "Disable SSVM LLVM-based ahead of time compilation runtime." ON)
 
@@ -48,7 +49,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(include)
 add_subdirectory(lib)
-add_subdirectory(tools)
+if (NOT SSVM_EVMC_DISABLE_TOOLS)
+  add_subdirectory(tools)
+endif()
 add_subdirectory(utils)
 
 if(BUILD_TESTS)
