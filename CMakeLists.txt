@@ -9,6 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED)
+option(SSVM_DISABLE_HOST_FUNCTIONS "Disable all SSVM host functions. " ON)
 option(SSVM_DISABLE_AOT_RUNTIME "Disable SSVM LLVM-based ahead of time compilation runtime." ON)
 
 # Clone ssvm-core
@@ -17,7 +18,7 @@ if(NOT SSVM_CORE_PATH)
   FetchContent_Declare(
     ssvm
     GIT_REPOSITORY https://github.com/second-state/SSVM.git
-    GIT_TAG 0.6.3
+    GIT_TAG hydai/0.6.3-evmc-tmp
   )
 
   FetchContent_GetProperties(ssvm)
