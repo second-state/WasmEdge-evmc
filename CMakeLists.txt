@@ -9,7 +9,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED)
-option(SSVM_EVMC_DISABLE_TOOLS "Disable SSVM-EVMC tools." OFF)
+option(SSVM_EVMC_DISABLE_TOOLS "Disable SSVM-EVMC tools." ON)
 option(SSVM_DISABLE_HOST_FUNCTIONS "Disable all SSVM host functions. " ON)
 option(SSVM_DISABLE_AOT_RUNTIME "Disable SSVM LLVM-based ahead of time compilation runtime." ON)
 
