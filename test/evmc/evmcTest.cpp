@@ -12,7 +12,7 @@
 
 #include "evmc/evmc.hpp"
 #include "evmc/loader.h"
-#include "support/hexstr.h"
+#include "common/hexstr.h"
 #include "gtest/gtest.h"
 
 #include "erc20.h"
@@ -69,7 +69,7 @@ TEST(EVMCTest, Run__1_deploy) {
 evmc::address string_to_address(std::string SenderStr) {
   evmc::address address;
   std::vector<uint8_t> Sender;
-  SSVM::Support::convertHexStrToBytes(SenderStr, Sender);
+  SSVM::convertHexStrToBytes(SenderStr, Sender);
   for (int i = 0; i < 20; i++) {
     address.bytes[i] = Sender[i];
   }
@@ -79,7 +79,7 @@ evmc::address string_to_address(std::string SenderStr) {
 evmc_result evmc_vm_execute(evmc_vm *vm, std::string SenderStr,
                             std::string CallDataStr) {
   std::vector<uint8_t> CallData;
-  SSVM::Support::convertHexStrToBytes(CallDataStr, CallData);
+  SSVM::convertHexStrToBytes(CallDataStr, CallData);
   evmc::address sender = string_to_address(SenderStr);
   evmc::address destination = {};
   int64_t gas = 999999;

@@ -4,7 +4,7 @@
 #include "common/types.h"
 #include "common/value.h"
 #include "evmc/evmc.hpp"
-#include "support/hexstr.h"
+#include "common/hexstr.h"
 
 #include <algorithm>
 #include <string>
@@ -42,7 +42,7 @@ public:
   /// Getter of caller and converting into hex string.
   std::string getCallerStr() {
     std::string Str;
-    Support::convertBytesToHexStr(Caller, Str, 40);
+    convertBytesToHexStr(Caller, Str, 40);
     return Str;
   }
 
@@ -58,13 +58,13 @@ public:
 
   /// Setter of caller by hex string.
   void setCaller(const std::string &Str) {
-    Support::convertHexStrToBytes(Str, Caller, 40);
+    convertHexStrToBytes(Str, Caller, 40);
   }
 
   /// Getter of call value and converting into hex string.
   std::string getCallValueStr() {
     std::string Str;
-    Support::convertValVecToHexStr(CallValue, Str, 64);
+    convertValVecToHexStr(CallValue, Str, 64);
     return Str;
   }
 
@@ -80,7 +80,7 @@ public:
 
   /// Setter of call value by hex string.
   void setCallValue(const std::string &Str) {
-    Support::convertHexStrToValVec(Str, CallValue, 64);
+    convertHexStrToValVec(Str, CallValue, 64);
   }
 
   /// Getter of call data vector.
@@ -89,7 +89,7 @@ public:
   /// Getter of address and converting into hex string.
   std::string getAddressStr() {
     std::string Str;
-    Support::convertBytesToHexStr(Address, Str, 40);
+    convertBytesToHexStr(Address, Str, 40);
     return Str;
   }
 
@@ -105,7 +105,7 @@ public:
 
   /// Setter of address by hex string.
   void setAddress(const std::string &Str) {
-    Support::convertHexStrToBytes(Str, Address, 40);
+    convertHexStrToBytes(Str, Address, 40);
   }
 
   /// Getter of return data vector.
