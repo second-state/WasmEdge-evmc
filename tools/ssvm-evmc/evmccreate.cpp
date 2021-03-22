@@ -2,9 +2,9 @@
 #include "eeimodule.h"
 #include "evmc/evmc.h"
 #include "evmc/utils.h"
-#include "support/hexstr.h"
-#include "support/log.h"
-#include "vm/configure.h"
+#include "common/hexstr.h"
+#include "common/log.h"
+//#include "vm/configure.h"
 #include "vm/vm.h"
 
 namespace {
@@ -42,10 +42,12 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   result.create_address = {};
 
   /// Create VM with ewasm configuration.
-  SSVM::VM::Configure Conf;
+  SSVM::Configure Conf;
   SSVM::VM::VM EVM(Conf);
-  SSVM::Support::Measurement &Measure = EVM.getMeasurement();
-  SSVM::Host::EEIModule EEIMod(Measure.getCostLimit(), Measure.getCostSum(),
+  SSVM::Statistics::Statistics &Measure = EVM.getStatistics();
+  uint64_t costLimit = Measure.getCostLimit();
+  uint64_t totalCost = Measure.getTotalCost();
+  SSVM::Host::EEIModule EEIMod(costLimit, totalCost,
                                host, context);
   Measure.setCostTable(std::vector<uint64_t>());
   EVM.registerModule(EEIMod);
@@ -59,7 +61,7 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
     EEIEnv.getCallData() = std::vector<uint8_t>(
         msg->input_data, msg->input_data + msg->input_size);
   }
-  EVM.getMeasurement().getCostLimit() = msg->gas;
+  EVM.getStatistics().setCostLimit(msg->gas);
 
   /// Debug log.
   LOG(DEBUG) << "msg->gas: " << msg->gas;
@@ -103,15 +105,16 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   }
 
   /// Get execution results.
-  uint64_t usedGas = EVM.getMeasurement().getCostSum();
+  uint64_t usedGas = EVM.getStatistics().getTotalCost();
   std::vector<uint8_t> &ReturnData = EEIEnv.getReturnData();
 
   /// Verify the deployed code.
   if (isWasmBinary(ReturnData) && msg->kind == EVMC_CREATE &&
       result.status_code != EVMC_REVERT) {
-    SSVM::Loader::Loader WasmLoader;
+    SSVM::Loader::Loader WasmLoader(Conf);
     if (auto Res = WasmLoader.parseModule(ReturnData)) {
-      if ((*Res)->getStartSection() != nullptr) {
+      const SSVM::AST::StartSection &StartSec = (*Res)->getStartSection();
+      if (!StartSec.getContent()) {
         result.status_code = EVMC_FAILURE;
       }
     } else {

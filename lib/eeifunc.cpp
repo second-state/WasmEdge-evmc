@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "eeifunc.h"
 #include "Keccak.h"
-#include "support/hexstr.h"
+#include "common/hexstr.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 
