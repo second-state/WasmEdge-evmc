@@ -4,7 +4,6 @@
 #include "evmc/utils.h"
 #include "common/hexstr.h"
 #include "common/log.h"
-//#include "vm/configure.h"
 #include "vm/vm.h"
 
 namespace {
