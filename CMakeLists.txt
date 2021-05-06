@@ -16,8 +16,8 @@ if(NOT SSVM_CORE_PATH)
   include(FetchContent)
   FetchContent_Declare(
     ssvm
-    GIT_REPOSITORY https://github.com/second-state/SSVM.git
-    GIT_TAG 0.6.3
+    GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
+    GIT_TAG 0.6.3-p1
   )
 
   FetchContent_GetProperties(ssvm)
