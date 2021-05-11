@@ -7,6 +7,6 @@ add_library(ssvm-evmc
 
 target_link_libraries(ssvm-evmc
   PRIVATE
-  ssvmVM
+  wasmedgeVM
   ssvmEVMCHostModuleEEI
 )

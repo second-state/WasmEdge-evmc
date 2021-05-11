@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 class EEIModule : public Runtime::ImportObject {
