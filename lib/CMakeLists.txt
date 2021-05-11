@@ -13,7 +13,7 @@ target_link_libraries(ssvmEVMCHostModuleEEI
 
 target_include_directories(ssvmEVMCHostModuleEEI
   PUBLIC
-  ${Boost_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
   ${SSVM_CORE_SRC_DIR}/include
   ${SSVM_CORE_SRC_DIR}/thirdparty
   ${PROJECT_SOURCE_DIR}/utils/keccak

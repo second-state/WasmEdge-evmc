@@ -3,7 +3,7 @@
 
 #include "eeibase.h"
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 class EEICall : public EEI<EEICall> {

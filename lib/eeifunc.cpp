@@ -5,7 +5,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 Expect<uint32_t> EEICall::body(Runtime::Instance::MemoryInstance *MemInst,

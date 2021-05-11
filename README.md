@@ -77,6 +77,11 @@ $ cmake -DSSVM_CORE_PATH=<path/to/ssvm/source/folder> -DCMAKE_BUILD_TYPE=Release
 $ cmake  -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .. && make
 ```
 
+#### Option 3. Build SSVM without tools and AOT features
+```bash
+$ cmake -DCMAKE_BUILD_TYPE=Debug  -DBUILD_TESTS=ON -DBUILD_TOOLS=FALSE -DSSVM_DISABLE_AOT_RUNTIME=ON .. && make -j
+```
+
 ## Run built-in tests
 
 The following built-in tests are only available when the build flag `BUILD_TESTS` sets to `ON`.

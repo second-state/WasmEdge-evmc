@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 EEIModule::EEIModule(uint64_t &CostLimit, uint64_t &CostSum,
