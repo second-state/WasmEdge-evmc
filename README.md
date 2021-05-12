@@ -68,13 +68,13 @@ We provide two approaches to build SSVM-Core:
 
 ```bash
 $ git clone git@github.com:second-state/SSVM.git <path/to/ssvm/source/folder>
-$ cmake -DSSVM_CORE_PATH=<path/to/ssvm/source/folder> -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .. && make
+$ cmake -DSSVM_CORE_PATH=<path/to/ssvm/source/folder> -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DSSVM_DISABLE_AOT_RUNTIME=ON .. && make
 ```
 
 #### Option 2. Use our built-in cmake rule to fetch SSVM
 
 ```bash
-$ cmake  -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .. && make
+$ cmake  -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DSSVM_DISABLE_AOT_RUNTIME=ON .. && make
 ```
 
 ## Run built-in tests
