@@ -41,8 +41,9 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   result.create_address = {};
 
   /// Create VM with ewasm configuration.
-  SSVM::Configure Conf;
-  SSVM::VM::VM EVM(Conf);
+  SSVM::ProposalConfigure ProposalConf;
+  SSVM::VM::Configure Conf;
+  SSVM::VM::VM EVM(ProposalConf, Conf);
   SSVM::Statistics::Statistics &Measure = EVM.getStatistics();
   uint64_t costLimit = Measure.getCostLimit();
   uint64_t totalCost = Measure.getTotalCost();
@@ -110,7 +111,7 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   /// Verify the deployed code.
   if (isWasmBinary(ReturnData) && msg->kind == EVMC_CREATE &&
       result.status_code != EVMC_REVERT) {
-    SSVM::Loader::Loader WasmLoader(Conf);
+    SSVM::Loader::Loader WasmLoader(ProposalConf);
     if (auto Res = WasmLoader.parseModule(ReturnData)) {
       const SSVM::AST::StartSection &StartSec = (*Res)->getStartSection();
       if (!StartSec.getContent()) {
