@@ -2,6 +2,8 @@
 
 The [WasmEdge (formerly SSVM)](https://github.com/WasmEdge/WasmEdge) is a high-performance WebAssembly runtime optimized for server-side applications. This project provides support for Ewasm runtime which is compatible with [EVMC](https://github.com/ethereum/evmc). Please notice that WasmEdge-EVMC is not a standalone tool but a shared library that can initialize and execute by the EVMC interface.
 
+[![build](https://github.com/second-state/ssvm-evmc/actions/workflows/build.yml/badge.svg)](https://github.com/second-state/ssvm-evmc/actions/workflows/build.yml)
+
 ## NOTICE
 
 The built library will be placed at `<your/build/folder>/tools/wasmedge-evmc/libwasmedge-evmc.so` on Linux or `<your/build/folder>/tools/wasmedge-evmc/libwasmedge-evmc.dylib` on MacOS.
