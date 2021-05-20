@@ -1,0 +1,78 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  create:
+    name: Create Release
+    runs-on: ubuntu-latest
+    container:
+      image: wasmedge/wasmedge:ubuntu-build-gcc
+    outputs:
+      version: ${{ steps.prep.outputs.version }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get version
+        id: prep
+        run: |
+          echo ::set-output name=version::$(git describe --tag)
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: WasmEdge-EVMC ${{ steps.prep.outputs.version }}
+          body_path: .CurrentChangelog.md
+          draft: false
+          prerelease: false
+  build_test_gcc_release:
+    needs: create
+    runs-on: ubuntu-latest
+    container:
+      image: wasmedge/wasmedge:ubuntu-build-gcc
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: Build WasmEdge-EVMC using gcc with Release mode
+        run: |
+          if ! command ninja; then
+            apt update
+            apt install -y ninja-build
+          fi
+          cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF .
+          cmake --build build
+
+      - name: Test WasmEdge-EVMC
+        run: |
+          cd build/test/evmc
+          ./wasmedgeEVMCTest
+
+      - name: Upload libsoll_runtime_test.so
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: build/tools/soll-runtime-test/libsoll_runtime_test.so
+          asset_name: libsoll_runtime_test.so
+
+      - name: Upload libwasmedge-evmc.so
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: build/tools/wasmedge-evmc/libwasmedge-evmc.so
+          asset_name: libwasmedge-evmc.so
