@@ -5,7 +5,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 Expect<uint32_t> EEICall::body(Runtime::Instance::MemoryInstance *MemInst,
@@ -232,7 +232,7 @@ Expect<uint32_t> EEICreate::body(Runtime::Instance::MemoryInstance *MemInst,
 
 Expect<uint32_t> EEICreate2::body(Runtime::Instance::MemoryInstance *MemInst,
                                  uint32_t ValueOffset, uint32_t DataOffset,
-                                 uint32_t DataLength, uint32_t SaltOffset, 
+                                 uint32_t DataLength, uint32_t SaltOffset,
                                  uint32_t ResultOffset) {
   /// Check memory instance from module.
   if (MemInst == nullptr) {
@@ -750,4 +750,4 @@ Expect<void> EEIUseGas::body(Runtime::Instance::MemoryInstance *MemInst,
 }
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge

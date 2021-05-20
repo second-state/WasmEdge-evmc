@@ -13,8 +13,8 @@ DocumentName: LICENSE.spdx
 Creator: Organization: Second State LCC (contact@secondstate.io)
 
 ## Package Information
-PackageName: ssvm-evmc
-SPDXID: SPDXRef-ssvm-evmc
+PackageName: wasmedge-evmc
+SPDXID: SPDXRef-wasmedge-evmc
 PackageOriginator: Organization: Second State LCC (contact@secondstate.io)
 PackageLicenseDeclared: (Apache-2.0)
 FilesAnalyzed: false
@@ -28,4 +28,4 @@ PackageLicenseDeclared: (BSD-3-Clause)
 FilesAnalyzed: false
 
 ## Relationships
-Relationship: SPDXRef-ssvm-evmc CONTAINS SPDXRef-SHA3
+Relationship: SPDXRef-wasmedge-evmc CONTAINS SPDXRef-SHA3

@@ -8,12 +8,12 @@ add_library(soll_runtime_test SHARED
 
 target_link_libraries(soll_runtime_test
   PRIVATE
-  ssvmEVMCUtilEVMCLoader
+  wasmedgeEVMCUtilEVMCLoader
   ${CMAKE_DL_LIBS}
 )
 
 target_include_directories(soll_runtime_test
   PRIVATE
-  ${SSVM_CORE_SRC_DIR}/include
+  ${WasmEdge_CORE_SRC_DIR}/include
   ${PROJECT_SOURCE_DIR}/include
 )

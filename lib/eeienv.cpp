@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "eeienv.h"
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 /// Consume gas. See "include/host/ethereum/eeienv.h".
@@ -58,4 +58,4 @@ void EVMEnvironment::setEVMCMessage(const struct evmc_message *Msg) {
 }
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge

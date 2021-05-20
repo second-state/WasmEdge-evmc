@@ -30,7 +30,7 @@ static struct evmc_result
 execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
         struct evmc_host_context *context, enum evmc_revision rev,
         const struct evmc_message *msg, const uint8_t *code, size_t code_size) {
-  SSVM::Log::setErrorLoggingLevel();
+  WasmEdge::Log::setErrorLoggingLevel();
   // Prepare EVMC result
   struct evmc_result result;
   result.status_code = EVMC_SUCCESS;
@@ -41,20 +41,19 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   result.create_address = {};
 
   /// Create VM with ewasm configuration.
-  SSVM::ProposalConfigure ProposalConf;
-  SSVM::VM::Configure Conf;
-  SSVM::VM::VM EVM(ProposalConf, Conf);
-  SSVM::Statistics::Statistics &Measure = EVM.getStatistics();
+  WasmEdge::Configure Conf;
+  WasmEdge::VM::VM EVM(Conf);
+  WasmEdge::Statistics::Statistics &Measure = EVM.getStatistics();
   uint64_t costLimit = Measure.getCostLimit();
   uint64_t totalCost = Measure.getTotalCost();
-  SSVM::Host::EEIModule EEIMod(costLimit, totalCost,
+  WasmEdge::Host::EEIModule EEIMod(costLimit, totalCost,
                                host, context);
   Measure.setCostTable(std::vector<uint64_t>());
   EVM.registerModule(EEIMod);
 
   /// Set data from message.
   std::vector<uint8_t> Code(code, code + code_size);
-  SSVM::Host::EVMEnvironment &EEIEnv = EEIMod.getEnv();
+  WasmEdge::Host::EVMEnvironment &EEIEnv = EEIMod.getEnv();
   EEIEnv.setEVMCMessage(msg);
   EEIEnv.setEVMCCode(code, code_size);
   if (msg->input_size > 0) {
@@ -111,9 +110,9 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   /// Verify the deployed code.
   if (isWasmBinary(ReturnData) && msg->kind == EVMC_CREATE &&
       result.status_code != EVMC_REVERT) {
-    SSVM::Loader::Loader WasmLoader(ProposalConf);
+    WasmEdge::Loader::Loader WasmLoader(Conf);
     if (auto Res = WasmLoader.parseModule(ReturnData)) {
-      const SSVM::AST::StartSection &StartSec = (*Res)->getStartSection();
+      const WasmEdge::AST::StartSection &StartSec = (*Res)->getStartSection();
       if (!StartSec.getContent()) {
         result.status_code = EVMC_FAILURE;
       }
@@ -144,8 +143,8 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
 extern "C" EVMC_EXPORT struct evmc_vm *evmc_create() EVMC_NOEXCEPT {
   struct evmc_vm *VM = new struct evmc_vm({
       EVMC_ABI_VERSION,
-      "ssvm",
-      "0.6.3",
+      "wasmedge",
+      "0.8.0",
       ::destroy, // destroy
       ::execute, // execute
       ::get_capabilities,

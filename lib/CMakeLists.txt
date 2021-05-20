@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(ssvmEVMCHostModuleEEI
+add_library(wasmedgeEVMCHostModuleEEI
   eeienv.cpp
   eeifunc.cpp
   eeimodule.cpp
 )
 
-target_link_libraries(ssvmEVMCHostModuleEEI
+target_link_libraries(wasmedgeEVMCHostModuleEEI
   PRIVATE
-  ssvmEVMCUtilKeccak
+  wasmedgeEVMCUtilKeccak
 )
 
-target_include_directories(ssvmEVMCHostModuleEEI
+target_include_directories(wasmedgeEVMCHostModuleEEI
   PUBLIC
   ${Boost_INCLUDE_DIRS}
-  ${SSVM_CORE_SRC_DIR}/include
-  ${SSVM_CORE_SRC_DIR}/thirdparty
+  ${WasmEdge_CORE_SRC_DIR}/include
+  ${WasmEdge_CORE_SRC_DIR}/thirdparty
   ${PROJECT_SOURCE_DIR}/utils/keccak
   ${PROJECT_SOURCE_DIR}/utils/evmc/include
 )

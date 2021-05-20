@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 class EVMEnvironment {
@@ -158,4 +158,4 @@ private:
 };
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge
