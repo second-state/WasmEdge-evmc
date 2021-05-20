@@ -1,4 +1,4 @@
-### 0.2.0 (2021-05-20)
+### 0.8.0 (2021-05-20)
 
 Changed:
 
@@ -6,6 +6,7 @@ Changed:
 * Migrate all SSVM components with WasmEdge components.
 * Bump SSVM from 0.7.3 to WasmEdge 0.8.0
 * Bump EVMC to 0.7.4
+* Bump version to 0.8.0 aligned with WasmEdge 0.8.0
 
 ### 0.1.1 (2020-06-24)
 
