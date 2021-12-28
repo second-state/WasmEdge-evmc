@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-//===-- wasmedge/test/loader/ethereumTest.cpp - Ethereum related wasm tests ---===//
+//===----- test/loader/ethereumTest.cpp - Ethereum related wasm tests -----===//
 //
-// Part of the SSVM Project.
+// Part of the WasmEdge Project.
 //
 //===----------------------------------------------------------------------===//
 ///
@@ -69,7 +69,7 @@ TEST(EVMCTest, Run__1_deploy) {
 evmc::address string_to_address(std::string SenderStr) {
   evmc::address address;
   std::vector<uint8_t> Sender;
-  SSVM::convertHexStrToBytes(SenderStr, Sender);
+  WasmEdge::convertHexStrToBytes(SenderStr, Sender);
   for (int i = 0; i < 20; i++) {
     address.bytes[i] = Sender[i];
   }
@@ -79,7 +79,7 @@ evmc::address string_to_address(std::string SenderStr) {
 evmc_result evmc_vm_execute(evmc_vm *vm, std::string SenderStr,
                             std::string CallDataStr) {
   std::vector<uint8_t> CallData;
-  SSVM::convertHexStrToBytes(CallDataStr, CallData);
+  WasmEdge::convertHexStrToBytes(CallDataStr, CallData);
   evmc::address sender = string_to_address(SenderStr);
   evmc::address destination = {};
   int64_t gas = 999999;

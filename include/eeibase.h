@@ -9,7 +9,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 template <typename T> class EEI : public Runtime::HostFunction<T> {
@@ -233,4 +233,4 @@ protected:
 };
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge

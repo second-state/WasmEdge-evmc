@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "common/hexstr.h"
+#include "common/log.h"
 #include "eeimodule.h"
 #include "evmc/evmc.h"
 #include "evmc/utils.h"
-#include "common/hexstr.h"
-#include "common/log.h"
 #include "vm/vm.h"
 
 namespace {
@@ -30,7 +30,7 @@ static struct evmc_result
 execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
         struct evmc_host_context *context, enum evmc_revision rev,
         const struct evmc_message *msg, const uint8_t *code, size_t code_size) {
-  SSVM::Log::setErrorLoggingLevel();
+  WasmEdge::Log::setErrorLoggingLevel();
   // Prepare EVMC result
   struct evmc_result result;
   result.status_code = EVMC_SUCCESS;
@@ -41,20 +41,18 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   result.create_address = {};
 
   /// Create VM with ewasm configuration.
-  SSVM::ProposalConfigure ProposalConf;
-  SSVM::VM::Configure Conf;
-  SSVM::VM::VM EVM(ProposalConf, Conf);
-  SSVM::Statistics::Statistics &Measure = EVM.getStatistics();
+  WasmEdge::Configure Conf;
+  WasmEdge::VM::VM EVM(Conf);
+  WasmEdge::Statistics::Statistics &Measure = EVM.getStatistics();
   uint64_t costLimit = Measure.getCostLimit();
   uint64_t totalCost = Measure.getTotalCost();
-  SSVM::Host::EEIModule EEIMod(costLimit, totalCost,
-                               host, context);
+  WasmEdge::Host::EEIModule EEIMod(costLimit, totalCost, host, context);
   Measure.setCostTable(std::vector<uint64_t>());
   EVM.registerModule(EEIMod);
 
   /// Set data from message.
   std::vector<uint8_t> Code(code, code + code_size);
-  SSVM::Host::EVMEnvironment &EEIEnv = EEIMod.getEnv();
+  WasmEdge::Host::EVMEnvironment &EEIEnv = EEIMod.getEnv();
   EEIEnv.setEVMCMessage(msg);
   EEIEnv.setEVMCCode(code, code_size);
   if (msg->input_size > 0) {
@@ -64,11 +62,11 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   EVM.getStatistics().setCostLimit(msg->gas);
 
   /// Debug log.
-  LOG(DEBUG) << "msg->gas: " << msg->gas;
-  LOG(DEBUG) << "msg->depth: " << msg->depth;
-  LOG(DEBUG) << "msg->input_size: " << msg->input_size;
-  LOG(DEBUG) << "Caller: " << EEIEnv.getCallerStr();
-  LOG(DEBUG) << "CallValue: " << EEIEnv.getCallValueStr();
+  spdlog::debug("msg->gas: {}", msg->gas);
+  spdlog::debug("msg->depth: {}", msg->depth);
+  spdlog::debug("msg->input_size: {}", msg->input_size);
+  spdlog::debug("Caller: {}", EEIEnv.getCallerStr());
+  spdlog::debug("CallValue: {}", EEIEnv.getCallValueStr());
 
   /// Load, validate, and instantiate code.
   if (result.status_code == EVMC_SUCCESS && !EVM.loadWasm(Code)) {
@@ -83,7 +81,8 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
 
   /// Checking for errors.
   auto &Store = EVM.getStoreManager();
-  if (result.status_code == EVMC_SUCCESS && Store.getMemExports().size() == 0) {
+  if (result.status_code == EVMC_SUCCESS &&
+      (*Store.getActiveModule())->getMemExports().size() == 0) {
     /// Memory exports not found
     result.status_code = EVMC_FAILURE;
   }
@@ -111,9 +110,9 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
   /// Verify the deployed code.
   if (isWasmBinary(ReturnData) && msg->kind == EVMC_CREATE &&
       result.status_code != EVMC_REVERT) {
-    SSVM::Loader::Loader WasmLoader(ProposalConf);
+    WasmEdge::Loader::Loader WasmLoader(Conf);
     if (auto Res = WasmLoader.parseModule(ReturnData)) {
-      const SSVM::AST::StartSection &StartSec = (*Res)->getStartSection();
+      const WasmEdge::AST::StartSection &StartSec = (*Res)->getStartSection();
       if (!StartSec.getContent()) {
         result.status_code = EVMC_FAILURE;
       }
@@ -133,8 +132,8 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
       (result.status_code == EVMC_FAILURE) ? 0 : msg->gas - usedGas;
 
   /// Debug log.
-  LOG(DEBUG) << "gas_left: " << result.gas_left;
-  LOG(DEBUG) << "output_size: " << result.output_size;
+  spdlog::debug("gas_left: {}", result.gas_left);
+  spdlog::debug("output_size: {}", result.output_size);
 
   return result;
 }
@@ -145,7 +144,7 @@ extern "C" EVMC_EXPORT struct evmc_vm *evmc_create() EVMC_NOEXCEPT {
   struct evmc_vm *VM = new struct evmc_vm({
       EVMC_ABI_VERSION,
       "wasmedge",
-      "0.6.3",
+      "0.9.0",
       ::destroy, // destroy
       ::execute, // execute
       ::get_capabilities,

@@ -9,12 +9,12 @@ target_link_libraries(wasmedgeEVMCTest
   PRIVATE
   wasmedgeCommon
   wasmedgeEVMCUtilEVMCLoader
-  utilGoogleTest
+  ${GTEST_BOTH_LIBRARIES}
   ${CMAKE_DL_LIBS}
 )
 
 target_include_directories(wasmedgeEVMCTest
   PRIVATE
-  ${WASMEDGE_CORE_SRC_DIR}/include
+  ${WASMEDGE_CORE_DIR}/include
   ${PROJECT_SOURCE_DIR}/include
 )

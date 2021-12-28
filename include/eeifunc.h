@@ -3,7 +3,7 @@
 
 #include "eeibase.h"
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 class EEICall : public EEI<EEICall> {
@@ -77,7 +77,7 @@ public:
 
   Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst,
                         uint32_t ValueOffset, uint32_t DataOffset,
-                        uint32_t DataLength, uint32_t SaltOffset, 
+                        uint32_t DataLength, uint32_t SaltOffset,
                         uint32_t ResultOffset);
 };
 
@@ -294,4 +294,4 @@ public:
 };
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge
