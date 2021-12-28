@@ -14,8 +14,8 @@ target_link_libraries(wasmedgeEVMCHostModuleEEI
 target_include_directories(wasmedgeEVMCHostModuleEEI
   PUBLIC
   ${Boost_INCLUDE_DIRS}
-  ${WASMEDGE_CORE_SRC_DIR}/include
-  ${WASMEDGE_CORE_SRC_DIR}/thirdparty
+  ${WASMEDGE_CORE_DIR}/include
+  ${WASMEDGE_CORE_DIR}/thirdparty
   ${PROJECT_SOURCE_DIR}/utils/keccak
   ${PROJECT_SOURCE_DIR}/utils/evmc/include
 )

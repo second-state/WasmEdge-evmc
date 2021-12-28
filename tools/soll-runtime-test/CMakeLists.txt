@@ -14,6 +14,6 @@ target_link_libraries(soll_runtime_test
 
 target_include_directories(soll_runtime_test
   PRIVATE
-  ${WASMEDGE_CORE_SRC_DIR}/include
+  ${WASMEDGE_CORE_DIR}/include
   ${PROJECT_SOURCE_DIR}/include
 )

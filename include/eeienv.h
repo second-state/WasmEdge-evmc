@@ -2,7 +2,6 @@
 #pragma once
 
 #include "common/types.h"
-#include "common/value.h"
 #include "evmc/evmc.hpp"
 #include "common/hexstr.h"
 
@@ -10,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace SSVM {
+namespace WasmEdge {
 namespace Host {
 
 class EVMEnvironment {
@@ -158,4 +157,4 @@ private:
 };
 
 } // namespace Host
-} // namespace SSVM
+} // namespace WasmEdge
