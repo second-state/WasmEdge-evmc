@@ -23,12 +23,8 @@ jobs:
 
     - name: Build WASMEDGE-EVMC using gcc with Release mode
       run: |
-        if ! command ninja; then
-          apt update
-          apt install -y ninja-build
-        fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DWASMEDGE_DISABLE_AOT_RUNTIME=ON .
-        cmake --build build
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
+        cmake --build build -- -j4
 
     - name: Test WASMEDGE-EVMC
       run: |
@@ -49,12 +45,8 @@ jobs:
 
     - name: Build WASMEDGE-EVMC using clang with Debug mode
       run: |
-        if ! command ninja; then
-          apt update
-          apt install -y ninja-build
-        fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DWASMEDGE_DISABLE_AOT_RUNTIME=ON .
-        cmake --build build
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug .
+        cmake --build build -- -j4
 
     - name: Test WASMEDGE-EVMC
       run: |
@@ -75,12 +67,8 @@ jobs:
 
     - name: Build WASMEDGE-EVMC using clang with Release mode
       run: |
-        if ! command ninja; then
-          apt update
-          apt install -y ninja-build
-        fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DWASMEDGE_DISABLE_AOT_RUNTIME=ON .
-        cmake --build build
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release .
+        cmake --build build -- -j4
 
     - name: Test WASMEDGE-EVMC
       run: |
