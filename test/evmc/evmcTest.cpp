@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-//===-- ssvm/test/loader/ethereumTest.cpp - Ethereum related wasm tests ---===//
+//===-- wasmedge/test/loader/ethereumTest.cpp - Ethereum related wasm tests ---===//
 //
 // Part of the SSVM Project.
 //
@@ -25,7 +25,7 @@ namespace {
 
 evmc_host_context *context = example_host_create_context(evmc_tx_context{});
 const std::string evmc_library =
-    std::string("../../tools/ssvm-evmc/libssvm-evmc.") +
+    std::string("../../tools/wasmedge-evmc/libwasmedge-evmc.") +
     std::string(EVMC_SHARED_LIBRARY_SUFFIX);
 
 const evmc_host_interface *host_interface = example_host_get_interface();
