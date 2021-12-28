@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cmake_minimum_required(VERSION 3.11)
-project(SSVM-EVMC)
+project(WASMEDGE-EVMC)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(NOT CMAKE_BUILD_TYPE)
@@ -9,30 +9,30 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(Boost REQUIRED)
-option(SSVM_DISABLE_AOT_RUNTIME "Disable SSVM LLVM-based ahead of time compilation runtime." ON)
+option(WASMEDGE_DISABLE_AOT_RUNTIME "Disable WasmEdge LLVM-based ahead of time compilation runtime." ON)
 
-# Clone ssvm-core
-if(NOT SSVM_CORE_PATH)
+# Clone wasmedge-core
+if(NOT WASMEDGE_CORE_PATH)
   include(FetchContent)
   FetchContent_Declare(
-    ssvm
-    GIT_REPOSITORY https://github.com/second-state/SSVM.git
+    wasmedge
+    GIT_REPOSITORY https://github.com/WasmEdge/WasmEdge.git
     GIT_TAG 0.7.3
   )
 
-  FetchContent_GetProperties(ssvm)
-  if (NOT ssvm_POPULATED)
-      FetchContent_Populate(ssvm)
+  FetchContent_GetProperties(wasmedge)
+  if (NOT wasmedge_POPULATED)
+      FetchContent_Populate(wasmedge)
   endif ()
-  add_subdirectory(${ssvm_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-  set(SSVM_CORE_SRC_DIR ${ssvm_SOURCE_DIR})
+  add_subdirectory(${wasmedge_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/utils/wasmedge-core)
+  set(WASMEDGE_CORE_SRC_DIR ${wasmedge_SOURCE_DIR})
 else()
   get_filename_component(
-    SSVM_CORE_PATH "${SSVM_CORE_PATH}"
+    WASMEDGE_CORE_PATH "${WASMEDGE_CORE_PATH}"
     REALPATH
     BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
-  add_subdirectory(${SSVM_CORE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/ssvm-core)
-  set(SSVM_CORE_SRC_DIR ${SSVM_CORE_PATH})
+  add_subdirectory(${WASMEDGE_CORE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/utils/wasmedge-core)
+  set(WASMEDGE_CORE_SRC_DIR ${WASMEDGE_CORE_PATH})
 endif()
 
 include_directories(BEFORE

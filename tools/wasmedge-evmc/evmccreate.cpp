@@ -144,7 +144,7 @@ execute(struct evmc_vm *instance, const struct evmc_host_interface *host,
 extern "C" EVMC_EXPORT struct evmc_vm *evmc_create() EVMC_NOEXCEPT {
   struct evmc_vm *VM = new struct evmc_vm({
       EVMC_ABI_VERSION,
-      "ssvm",
+      "wasmedge",
       "0.6.3",
       ::destroy, // destroy
       ::execute, // execute

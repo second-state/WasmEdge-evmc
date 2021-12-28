@@ -1,3 +1,3 @@
-add_library(ssvmEVMCUtilKeccak
+add_library(wasmedgeEVMCUtilKeccak
   Keccak.cpp
 )

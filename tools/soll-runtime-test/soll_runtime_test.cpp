@@ -25,7 +25,7 @@ const evmc::address default_sender =
     0x0000000000000000000000000000000011111111_address;
 const evmc::uint256be default_value = evmc::uint256be{0x55555555};
 
-const char *evmc_library_default = "./libssvm-evmc.so";
+const char *evmc_library_default = "./libwasmedge-evmc.so";
 const char *evmc_library;
 
 evmc_tx_context tx_context = {};
