@@ -13,7 +13,6 @@ The built library will be placed at `<your/build/folder>/tools/wasmedge-evmc/lib
 ```bash
 $ git clone git@github.com:second-state/wasmedge-evmc.git
 $ cd wasmedge-evmc
-$ git checkout master
 ```
 
 ## Prepare the environment
@@ -65,12 +64,10 @@ WasmEdge-EVMC depends on WasmEdge. Please refer to [WasmEdge Project](https://gi
 #### Use the built-in cmake rule to fetch WasmEdge
 
 ```bash
-$ cmake  -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_TOOLS=OFF -DWASMEDGE_DISABLE_AOT_RUNTIME=ON .. && make
+$ cmake -DCMAKE_BUILD_TYPE=Release .. && make -j
 ```
 
 ## Run built-in tests
-
-The following built-in tests are only available when the build flag `BUILD_TESTS` sets to `ON`.
 
 ```bash
 $ cd <path/to/wasmedge/build/folder>
